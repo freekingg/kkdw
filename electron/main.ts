@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import fs from "fs-extra";
 import { machineIdSync } from "node-machine-id";
@@ -7,9 +7,12 @@ import { kill } from 'cross-port-killer';
 const DB = require('../db/index.js')
 import { updateHandle, checkForUpdates, downloadUpdate } from './autoUpdater'
 
-kill(3005).then(pids => {
-  console.log(pids)
-})
+if(!app.isPackaged){
+  kill(3005).then(pids => {
+    console.log(pids)
+  })
+}
+
 // The built directory structure
 //
 // ├─┬─┬ dist
@@ -36,6 +39,7 @@ function createServerProcess() {
   });
 }
 
+
 process.on("exit", function () {
   if (serverProcess) {
     try {
@@ -48,6 +52,14 @@ process.on("exit", function () {
     }
   }
 })
+
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+  process.exit(0);
+}
+
+
+
 let win: BrowserWindow | null;
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -76,20 +88,50 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(DIST, "index.html"));
   }
+
+  if(win){
+    win.on("close", (event) => {
+      if (dialog.showMessageBoxSync(win as BrowserWindow, {
+        type: "info",
+        buttons: ["最小化到托盘", "直接退出"],
+        title: "提示",
+        message: "确定要退出吗？",
+        defaultId: 0,
+        cancelId: 1
+      }) === 0) {
+        event.preventDefault();
+        (win as BrowserWindow).minimize();
+      } else {
+        app.exit();
+      }
+    });
+  }
+ 
 }
-app.on("window-all-closed", () => {
-  win = null;
-  if (serverProcess) {
-    try {
-      process.kill(serverProcess.pid);
-    } catch (error) {
-      console.log("kill error: ", error);
-      kill(3005).then(pids => {
-        console.log(pids)
-      })
-    }
+
+
+
+
+app.on("second-instance", () => {
+  if (win) {
+    if (win.isMinimized()) win.restore();
+    win.focus();
   }
 });
+
+app.on("window-all-closed", () => {
+  win = null;
+
+  if (process.platform !== "darwin") {
+    if (serverProcess) {
+      process.kill(serverProcess.pid);
+    }
+    app.quit();
+  }
+});
+
+
+
 
 app.whenReady().then(() => {
   // console.log(app.getVersion());

@@ -1,5 +1,5 @@
 import { autoUpdater } from "electron-updater";
-import { app, ipcMain } from "electron";
+import { app } from "electron";
 
 // 服务器静态文件地址，文章后面附上ng配置及需要上传的文件
 const updateUrl = "http://139.180.197.31:3001/update";
@@ -47,6 +47,10 @@ export const updateHandle = (win:any)=> {
     "update-downloaded",
     function () {
       sendUpdateMessage(win, "update-downloaded", "下载完成");
+      // 加载更新程序
+      autoUpdater.quitAndInstall();
+      // 关闭当前electron
+      app.quit();
     }
   );
 
@@ -54,16 +58,18 @@ export const updateHandle = (win:any)=> {
   function sendUpdateMessage(win:any, name: any, text: any) {
     // 窗口对象自行修改
     win.webContents.send("updateMessage", { name, text });
+
+    
   }
 }
 
-//  下载完成，退出且重新安装
-ipcMain.on("updateSuccess", () => {
-  // 加载更新程序
-  autoUpdater.quitAndInstall();
-  // 关闭当前electron
-  app.quit();
-});
+// //  下载完成，退出且重新安装
+// ipcMain.on("updateSuccess", () => {
+//   // 加载更新程序
+//   autoUpdater.quitAndInstall();
+//   // 关闭当前electron
+//   app.quit();
+// });
 
 // 触发更新检测
 export const checkForUpdates = ()=>{
