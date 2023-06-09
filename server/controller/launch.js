@@ -8,9 +8,6 @@ const chokidar = require('chokidar');
 const SSH = require('../../ssh')
 const DB =  require('../../db/index.js')
 puppeteer.use(StealthPlugin());
-
-
-
 const launch = (ctx) => {
   
   const body = ctx.request.body;
@@ -34,7 +31,13 @@ const launch = (ctx) => {
           },
         })
       );
-      const chromeExtPath = path.join(__dirname,'../../chrome-ext')
+      let chromeExtPath = path.join(process.cwd(),'../../chrome-ext')
+      if(process.env.NODE_ENV === 'development'){
+        chromeExtPath = path.join(__dirname,'../../chrome-ext')
+      } else {
+        chromeExtPath = path.join(process.cwd(),'/resources/chrome-ext')
+      }
+      console.log('chromeExtPath: ', chromeExtPath);
       const customArgs = [
         `--start-maximized`,
         `--disable-infobars`,

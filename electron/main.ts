@@ -125,7 +125,11 @@ app.on("will-quit", () => {
 app.on("quit", () => {
   console.log('quit',);
   if (serverProcess) {
+    try {
       process.kill(serverProcess.pid);
+    } catch (error) {
+      
+    }
     }
 });
 
@@ -134,7 +138,11 @@ app.on("window-all-closed", () => {
   win = null;
   if (process.platform !== "darwin") {
     if (serverProcess) {
-      process.kill(serverProcess.pid);
+      try {
+        process.kill(serverProcess.pid);
+      } catch (error) {
+        
+      }
     }
     app.quit();
   }
