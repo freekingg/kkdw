@@ -118,10 +118,20 @@ app.on("second-instance", () => {
     win.focus();
   }
 });
+app.on("will-quit", () => {
+  console.log('will-quit: ',);
+  
+});
+app.on("quit", () => {
+  console.log('quit',);
+  if (serverProcess) {
+      process.kill(serverProcess.pid);
+    }
+});
 
 app.on("window-all-closed", () => {
+  console.log('window-all-closed: ');
   win = null;
-
   if (process.platform !== "darwin") {
     if (serverProcess) {
       process.kill(serverProcess.pid);
