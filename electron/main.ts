@@ -5,7 +5,7 @@ import { machineIdSync } from "node-machine-id";
 import { fork } from "child_process";
 import { kill } from 'cross-port-killer';
 const DB = require('../db/index.js')
-// import SSH from '../ssh/index'
+import { updateHandle, checkForUpdates, downloadUpdate } from './autoUpdater'
 
 kill(3005).then(pids => {
   console.log(pids)
@@ -67,6 +67,8 @@ function createWindow() {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
 
+  updateHandle(win)
+
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
     win.webContents.openDevTools()
@@ -91,6 +93,7 @@ app.on("window-all-closed", () => {
 
 app.whenReady().then(() => {
   // console.log(app.getVersion());
+  
    // 设备码
   ipcMain.handle("getMachineId", () => {
     return machineIdSync(true)
@@ -181,6 +184,16 @@ app.whenReady().then(() => {
       }
     }
     return result
+  })
+
+  ipcMain.handle('checkForUpdates', async (_event) => {
+    checkForUpdates()
+    return true
+  })
+
+  ipcMain.handle('downloadUpdate', async (_event) => {
+    downloadUpdate()
+    return true
   })
 
   createWindow();

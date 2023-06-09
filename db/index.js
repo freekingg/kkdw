@@ -2,7 +2,6 @@ const Datastore = require("nedb");
 const path = require("path");
 // const { app } = require("electron");
 // console.log("app: ", app.getPath("userData"));
-console.log(process.env);
 const DB = new Datastore({
   autoload: true,
   timestampData: true,

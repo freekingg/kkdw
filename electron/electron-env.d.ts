@@ -30,6 +30,9 @@ export interface IElectronAPI {
   dbUpdateOne: (query:any, data:any) => Promise<string>;
   checkDir: (data:string) => Promise<string>;
   checkSsh: (data:any) => Promise<string>;
+  checkForUpdates: () => Promise<string>;
+  downloadUpdate: () => Promise<string>;
+  onUpdateMessage: (callback:any) => Promise<string>;
 }
 
 declare global {

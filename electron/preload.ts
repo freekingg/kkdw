@@ -10,6 +10,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   dbFindAll: (query:any) => ipcRenderer.invoke('db:findAll',query),
   dbInsert: (data:any) => ipcRenderer.invoke('db:insert',data),
   dbUpdateOne: (query:any,data:any) => ipcRenderer.invoke('db:updateOne',query,data),
+  checkForUpdates: () => ipcRenderer.invoke('checkForUpdates'),
+  downloadUpdate: () => ipcRenderer.invoke('downloadUpdate'),
+  onUpdateMessage: (callback:any) => ipcRenderer.on('updateMessage', callback)
+
 })
 
 
