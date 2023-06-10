@@ -33,18 +33,21 @@ const launch = (ctx) => {
           },
         })
       );
-      let chromeExtPath = path.join(process.cwd(),'../../chrome-ext')
+      let chromeExtPath = path.join(process.cwd(),'../../chrome-ext/kkExt')
+      let chromeExtPathRightClick = ''
       if(process.env.NODE_ENV === 'development'){
-        chromeExtPath = path.join(__dirname,'../../chrome-ext')
+        chromeExtPath = path.join(__dirname,'../../chrome-ext/kkExt')
+        chromeExtPathRightClick = path.join(__dirname,'../../chrome-ext/rightClick')
       } else {
-        chromeExtPath = path.join(process.cwd(),'/resources/chrome-ext')
+        chromeExtPath = path.join(process.cwd(),'/resources/chrome-ext/kkExt')
+        chromeExtPathRightClick = path.join(process.cwd(),'/resources/chrome-ext/rightClick')
       }
       console.log('chromeExtPath: ', chromeExtPath);
       const customArgs = [
         `--start-maximized`,
         `--disable-infobars`,
         "--no-default-browser-check",
-        `--load-extension=${chromeExtPath}`,
+        `--load-extension=${chromeExtPath},${chromeExtPathRightClick}`,
       ];
 
 
@@ -88,7 +91,6 @@ const launch = (ctx) => {
         ignoreDefaultArgs: [
           "--disable-extensions",
           "--enable-automation",
-          "--enable-blink-features=IdleDetection",
         ],
         args: customArgs,
       });
@@ -127,7 +129,7 @@ const launch = (ctx) => {
               DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} 上传成功`}});
             }).catch(async (err) => {
               console.log('err: ', err);
-              DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} 上传失败`}});
+              DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} 上传失败, ${err.message}`}});
             });
           }else{
             SSH.connect(sshInfo).then((sftp2) => {
@@ -136,6 +138,7 @@ const launch = (ctx) => {
                 console.log(`${pathObj.base} 上传成功`);
               }).catch(async (err) => {
                 console.log('err: ', err);
+                DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} 上传失败, ${err.message}`}});
               });
               handleSftp(sftp)
             }).catch((err) => {
@@ -150,6 +153,7 @@ const launch = (ctx) => {
           // console.log(`检查${uname}的任务浏览器是否关闭，${result.length}`);
           if(!result.length){
             console.log('浏览器关闭了');
+            DB.insert({name:'logInfo',value:{uname,message:`${uname} 的浏览器已关闭`}});
             clearInterval(checkBrowserTimer)
             sftp.end()
             watcher.close().then(() => console.log('watcher closed'));

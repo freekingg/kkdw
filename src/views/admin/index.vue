@@ -131,6 +131,8 @@ const onSubmit = async (formEl: any) => {
     2、输入 chrome://version/ <br />
     3、把 <strong>可执行文件路径</strong> 复制到此处保存 <br />
   </p> -->
+  <el-alert show-icon title="提示" description="请确认好远程登录信息，点击保存测试连接状态" type="warning" :closable="false" />
+
 </template>
 
 <style scoped>

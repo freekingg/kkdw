@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Document, Menu as IconMenu, Setting } from "@element-plus/icons-vue";
+import { Document, Menu as IconMenu, Setting, Warning } from "@element-plus/icons-vue";
 import AccountPage from "./views/account/index.vue";
 import SettingPage from "./views/setting/index.vue";
 import AdminPage from "./views/admin/index.vue";
 import LogPage from "./views/log/index.vue";
+import DocPage from "./views/doc/index.vue";
 import { ref, onMounted } from "vue";
 const currentMenu = ref(1);
 const machineId = ref("");
@@ -65,11 +66,15 @@ onMounted(async () => {
       </el-menu-item>
       <el-menu-item index="3">
         <el-icon><setting /></el-icon>
-        <span>软件配置</span>
+        <span>基本配置</span>
       </el-menu-item>
       <el-menu-item index="4" :disabled="disabled">
         <el-icon><setting /></el-icon>
         <span>高级配置</span>
+      </el-menu-item>
+      <el-menu-item index="5" :disabled="disabled">
+        <el-icon><Warning /></el-icon>
+        <span>使用说明</span>
       </el-menu-item>
     </el-menu>
   </div>
@@ -79,6 +84,7 @@ onMounted(async () => {
     <LogPage v-if="currentMenu === 2" />
     <SettingPage v-if="currentMenu === 3" />
     <AdminPage v-if="currentMenu === 4" />
+    <DocPage v-if="currentMenu === 5" />
   </div>
 
   <el-dialog v-model="upDateDialogVisible" :close-on-click-modal="false" title="版本更新" width="300px" center>

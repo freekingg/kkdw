@@ -9,7 +9,7 @@ const formInline = reactive({
   url: "",
 });
 
-const baseUrl = ref('http://localhost:3005');
+const baseUrl = ref("http://localhost:3005");
 const loading = ref(false);
 const downloadPath = ref("");
 const ruleFormRef = ref();
@@ -34,7 +34,7 @@ const urls = ref([
   "https://www.kvbin.com/B001/ENULogin.jsp",
   "https://corporatebanking.janabank.com/Corporate/prelogin",
   "https://corporate.bandhanbank.com/Corporatebanking/prelogin",
-  "https://feba.bobibanking.com/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=012"
+  "https://feba.bobibanking.com/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=012",
 ]);
 
 const checkUrl = (rule: any, value: any, callback: any) => {
@@ -71,14 +71,14 @@ const handleBoot = async (row: any) => {
   if (chromeDir) {
     chromePath.value = chromeDir.value;
   } else {
-    ElMessage.error("请在设置中配置浏览器路径");
+    ElMessage.error("请在基本配置中配置浏览器路径");
     return;
   }
   const device: any = await window.electronAPI.getDeviceInfo();
   if (device) {
-    console.log('device: ', device);
+    console.log("device: ", device);
     downloadPath.value = `${device.downloadsPath}/${row.uname}`;
-    baseUrl.value = `http://localhost:${device.serverPort}`
+    baseUrl.value = `http://localhost:${device.serverPort}`;
   }
   loading.value = true;
   axios({
@@ -128,35 +128,11 @@ const onSubmit = async (formEl: any) => {
 
 <template>
   <div class="account">
-    <a href="https://vitejs.dev" target="_blank">
+    <a href="javascript:;">
       <img src="/electron-vite.svg" class="logo" alt="Vite logo" />
     </a>
-    <h1 style="margin-bottom: 20px">账户列表</h1>
-    <div class="card">
-      <el-table :data="tableData" style="width: 100%" size="large">
-        <el-table-column
-          type="index"
-          label="#"
-          header-align="center"
-          align="center"
-        />
-        <el-table-column
-          prop="uname"
-          label="账户名"
-          header-align="center"
-          align="center"
-        />
-        <el-table-column label="操作" header-align="center" align="center">
-          <template #default="{ row }">
-            <el-button type="success" @click="handleBoot(row)">启动</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <el-button type="primary" style="margin-top: 20px">刷新</el-button>
-    <el-divider />
     <div class="other">
-      <h4 style="margin-top: 20px; margin-bottom: 20px; text-align: center">
+      <h4 style="margin-top: 15px; margin-bottom: 23px; text-align: center">
         手动运行
       </h4>
       <el-form
@@ -167,11 +143,17 @@ const onSubmit = async (formEl: any) => {
         class="demo-form-inline"
       >
         <el-form-item label="账户名" prop="uname">
-          <el-input
-            v-model="formInline.uname"
-            clearable
-            placeholder="请输入账户名"
-          />
+          <el-tooltip
+            effect="dark"
+            content="请核对好与后台的户名一致,不可出错"
+            placement="top-start"
+          >
+            <el-input
+              v-model="formInline.uname"
+              clearable
+              placeholder="请输入账户名"
+            />
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="网址" prop="url">
           <el-select
@@ -201,6 +183,33 @@ const onSubmit = async (formEl: any) => {
         </el-form-item>
       </el-form>
     </div>
+    <el-alert show-icon title="账户名" description="请核对好与后台的户名一致,不可出错." type="info" :closable="false" style="margin-bottom: 3px;" />
+    <el-divider />
+    <h2 style="margin-bottom: 20px">账户列表</h2>
+    <div class="card">
+      <el-table :data="tableData" style="width: 100%" size="large">
+        <el-table-column
+          type="index"
+          label="#"
+          header-align="center"
+          align="center"
+        />
+        <el-table-column
+          prop="uname"
+          label="账户名"
+          header-align="center"
+          align="center"
+        />
+        <el-table-column label="操作" header-align="center" align="center">
+          <template #default="{ row }">
+            <el-button type="success" @click="handleBoot(row)">启动</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <el-button type="primary" style="margin-top: 20px">刷新</el-button>
+   
+
   </div>
 </template>
 
