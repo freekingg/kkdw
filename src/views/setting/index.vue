@@ -13,7 +13,8 @@ const deviceInfo = reactive({
   platform:"",
   machineId:"",
   downloadsPath:"",
-  appPath:""
+  appPath:"",
+  serverPort:''
 });
 
 onMounted(async () => {
@@ -28,6 +29,7 @@ onMounted(async () => {
     deviceInfo.platform = device.platform
     deviceInfo.downloadsPath = device.downloadsPath
     deviceInfo.appPath = device.appPath
+    deviceInfo.serverPort = device.serverPort
   }
   deviceInfo.machineId = await window.electronAPI.getMachineId()
 });
@@ -90,10 +92,13 @@ const onSubmit = () => {
     <el-descriptions-item label="机器码" label-align="right" align="center">
       {{ deviceInfo.machineId }}
     </el-descriptions-item>
+    <el-descriptions-item label="服务端口" label-align="right" align="center"
+      >{{ deviceInfo.serverPort }}</el-descriptions-item
+    >
     <el-descriptions-item label="下载目录" label-align="right" align="center">
       {{ deviceInfo.downloadsPath }}
     </el-descriptions-item>
-    <el-descriptions-item label="安装目录" label-align="right" align="center">
+    <el-descriptions-item label="软件目录" label-align="right" align="center">
       {{ deviceInfo.appPath }}
     </el-descriptions-item>
     <el-descriptions-item label="浏览器目录" label-align="right" align="center">

@@ -9,6 +9,7 @@ const formInline = reactive({
   url: "",
 });
 
+const baseUrl = ref('http://localhost:3005');
 const loading = ref(false);
 const downloadPath = ref("");
 const ruleFormRef = ref();
@@ -32,7 +33,8 @@ const urls = ref([
   "https://online.canarabank.in/?module=login%27",
   "https://www.kvbin.com/B001/ENULogin.jsp",
   "https://corporatebanking.janabank.com/Corporate/prelogin",
-  "https://corporate.bandhanbank.com/Corporatebanking/prelogin"
+  "https://corporate.bandhanbank.com/Corporatebanking/prelogin",
+  "https://feba.bobibanking.com/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=012"
 ]);
 
 const checkUrl = (rule: any, value: any, callback: any) => {
@@ -74,12 +76,14 @@ const handleBoot = async (row: any) => {
   }
   const device: any = await window.electronAPI.getDeviceInfo();
   if (device) {
+    console.log('device: ', device);
     downloadPath.value = `${device.downloadsPath}/${row.uname}`;
+    baseUrl.value = `http://localhost:${device.serverPort}`
   }
   loading.value = true;
   axios({
     method: "post",
-    url: "http://localhost:3005/launch",
+    url: `${baseUrl.value}/launch`,
     data: {
       ...row,
       sshInfo: sshData.value,

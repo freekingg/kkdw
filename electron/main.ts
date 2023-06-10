@@ -3,15 +3,16 @@ import path from "path";
 import fs from "fs-extra";
 import { machineIdSync } from "node-machine-id";
 import { fork } from "child_process";
-import { kill } from 'cross-port-killer';
-const DB = require('../db/index.js')
-import { updateHandle, checkForUpdates, downloadUpdate } from './autoUpdater'
+// import { kill } from "cross-port-killer";
+import getPort from "get-port";
+const DB = require("../db/index.js");
+import { updateHandle, checkForUpdates, downloadUpdate } from "./autoUpdater";
 
-if(!app.isPackaged){
-  kill(3005).then(pids => {
-    console.log(pids)
-  })
-}
+let port: any = 3005;
+// 获取一个可用端口
+getPort().then((result) => {
+  port = result;
+});
 
 // The built directory structure
 //
@@ -33,32 +34,30 @@ const PUBLIC = app.isPackaged ? DIST : path.join(DIST, "../public");
 let serverProcess: any = null;
 function createServerProcess() {
   // 开发环境
-  serverProcess = fork(path.join(__dirname, "../server/app.js"));
+  serverProcess = fork(path.join(__dirname, "../server/app.js"), [port]);
   serverProcess.on("close", (code: any) => {
     console.log("koa子线程已经退出", code);
   });
 }
 
-
-process.on("exit", function () {
-  if (serverProcess) {
-    try {
-      process.kill(serverProcess.pid);
-    } catch (error) {
-      console.log("kill error on process exit: ", error);
-      kill(3005).then(pids => {
-        console.log(pids)
-      })
-    }
-  }
-})
+// process.on("exit", function () {
+//   if (serverProcess) {
+//     try {
+//       console.log("kill serverProcess success ", );
+//       process.kill(serverProcess.pid);
+//     } catch (error) {
+//       console.log("kill error on process exit: ", error);
+//       kill(port).then((pids) => {
+//         console.log(pids);
+//       });
+//     }
+//   }
+// });
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
   process.exit(0);
 }
-
-
 
 let win: BrowserWindow | null;
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -70,8 +69,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
-    width:1000,
-    height:800
+    width: 1000,
+    height: 800,
   });
 
   // Test active push message to Renderer-process.
@@ -79,26 +78,27 @@ function createWindow() {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
 
-  updateHandle(win)
+  updateHandle(win);
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-    win.webContents.openDevTools()
+    win.webContents.openDevTools();
   } else {
-    // win.loadFile('dist/index.html')
     win.loadFile(path.join(DIST, "index.html"));
   }
 
-  if(win){
+  if (win) {
     win.on("close", (event) => {
-      if (dialog.showMessageBoxSync(win as BrowserWindow, {
-        type: "info",
-        buttons: ["最小化到托盘", "直接退出"],
-        title: "提示",
-        message: "确定要退出吗？",
-        defaultId: 0,
-        cancelId: 1
-      }) === 0) {
+      if (
+        dialog.showMessageBoxSync(win as BrowserWindow, {
+          type: "info",
+          buttons: ["最小化到托盘", "直接退出"],
+          title: "提示",
+          message: "确定要退出吗？",
+          defaultId: 0,
+          cancelId: 1,
+        }) === 0
+      ) {
         event.preventDefault();
         (win as BrowserWindow).minimize();
       } else {
@@ -106,11 +106,7 @@ function createWindow() {
       }
     });
   }
- 
 }
-
-
-
 
 app.on("second-instance", () => {
   if (win) {
@@ -118,144 +114,139 @@ app.on("second-instance", () => {
     win.focus();
   }
 });
-app.on("will-quit", () => {
-  console.log('will-quit: ',);
-  
-});
 app.on("quit", () => {
-  console.log('quit',);
+  console.log("app quit");
   if (serverProcess) {
     try {
       process.kill(serverProcess.pid);
+      console.log("kill node process success: ", serverProcess.pid);
     } catch (error) {
-      
+      console.log("kill node process error: ", error);
     }
-    }
+  }
 });
 
 app.on("window-all-closed", () => {
-  console.log('window-all-closed: ');
+  console.log("window-all-closed: ");
   win = null;
   if (process.platform !== "darwin") {
     if (serverProcess) {
       try {
         process.kill(serverProcess.pid);
-      } catch (error) {
-        
-      }
+      } catch (error) {}
     }
     app.quit();
   }
 });
 
-
-
-
 app.whenReady().then(() => {
-  // console.log(app.getVersion());
-  
-   // 设备码
+  // 设备码
   ipcMain.handle("getMachineId", () => {
-    return machineIdSync(true)
+    return machineIdSync(true);
   });
 
-   // 获取软件信息
-   ipcMain.handle("getDeviceInfo", () => {
-    const packages = require('../package.json')
-    const {platform} = require('process')
-    let interfaces = require('os').networkInterfaces();
-    let ip = ''
+  // 获取软件信息
+  ipcMain.handle("getDeviceInfo", () => {
+    const packages = require("../package.json");
+    const { platform } = require("process");
+    let interfaces = require("os").networkInterfaces();
+    let ip = "";
     for (let devName in interfaces) {
       let iface = interfaces[devName];
       for (let i = 0; i < iface.length; i++) {
-          let alias = iface[i];
-          if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
-            ip=alias.address
-          }
+        let alias = iface[i];
+        if (
+          alias.family === "IPv4" &&
+          alias.address !== "127.0.0.1" &&
+          !alias.internal
+        ) {
+          ip = alias.address;
+        }
       }
-  }
-  
+    }
+
     return {
       version: packages.version,
       name: packages.name,
       platform,
-      tempPath: app.getPath('temp'),
-      downloadsPath: app.getPath('downloads'),
-      desktopPath: app.getPath('desktop'),
+      tempPath: app.getPath("temp"),
+      downloadsPath: app.getPath("downloads"),
+      desktopPath: app.getPath("desktop"),
       appPath: process.cwd(),
-      ip
-    }
+      serverPort: port,
+      ip,
+    };
   });
 
-  ipcMain.handle('checkDir', async (_event, path) => {
-    let result = false
+  ipcMain.handle("checkDir", async (_event, path) => {
+    let result = false;
     try {
-      await fs.ensureDirSync(path)
-      result = true
+      await fs.ensureDirSync(path);
+      result = true;
     } catch (err) {
-      console.error(err)
-      result = false
-    }
-    return result
-  })
-
-  ipcMain.handle('db:findOne', async (_event, query) => {
-    let result = await DB.findOne(query)
-    return result
-  })
-
-  ipcMain.handle('db:findAll', async (_event, query) => {
-    let result = await DB.findAll(query)
-    return result
-  })
-
-  ipcMain.handle("db:insert", async (_event, data) => {
-    let result = false
-    try {
-      result = await DB.insert(data);
-    } catch (error) {
-      console.log('error: ', error);
-    }
-    return result
-  });
-
-  ipcMain.handle("db:updateOne", async (_event, query, data) => {
-    let result=''
-    try {
-      result = await DB.updateOne(query, data)
-    } catch (error) {
-      console.log('error: ', error);
+      console.error(err);
+      result = false;
     }
     return result;
   });
 
-  ipcMain.handle('checkSsh', async (_event, data) => {
-    let result = {}
-    let SSH = require('../ssh/index.js')
+  ipcMain.handle("db:findOne", async (_event, query) => {
+    let result = await DB.findOne(query);
+    return result;
+  });
+
+  ipcMain.handle("db:findAll", async (_event, query) => {
+    let result = await DB.findAll(query);
+    return result;
+  });
+
+  ipcMain.handle("db:insert", async (_event, data) => {
+    let result = false;
     try {
-      await SSH.test(data)
+      result = await DB.insert(data);
+    } catch (error) {
+      console.log("error: ", error);
+    }
+    return result;
+  });
+
+  ipcMain.handle("db:updateOne", async (_event, query, data) => {
+    let result = "";
+    try {
+      result = await DB.updateOne(query, data);
+    } catch (error) {
+      console.log("error: ", error);
+    }
+    return result;
+  });
+
+  ipcMain.handle("checkSsh", async (_event, data) => {
+    let result = {};
+    let SSH = require("../ssh/index.js");
+    try {
+      await SSH.test(data);
       result = {
-        status:true,
-        message:''
-      }
+        status: true,
+        message: "",
+      };
     } catch (err) {
       result = {
-        status:false,
-        message:err
-      }
+        status: false,
+        message: err,
+      };
     }
-    return result
-  })
+    return result;
+  });
 
-  ipcMain.handle('checkForUpdates', async (_event) => {
-    checkForUpdates()
-    return true
-  })
+  ipcMain.handle("checkForUpdates", async (_event) => {
+    checkForUpdates();
+    return true;
+  });
 
-  ipcMain.handle('downloadUpdate', async (_event) => {
-    downloadUpdate()
-    return true
-  })
+  ipcMain.handle("downloadUpdate", async (_event) => {
+    downloadUpdate();
+    return true;
+  });
 
   createWindow();
 });

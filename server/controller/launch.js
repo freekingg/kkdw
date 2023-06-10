@@ -58,7 +58,8 @@ const launch = (ctx) => {
         return resolve({ code: -1, message: '远程连接失败,请检查连接信息' });
       }
       // 远程目录
-      let remoteDir = `D:\\download\\${uname}\\file\\`
+      let remoteDir = path.normalize(`D:\\download\\${uname}\\file\\`)
+      console.log('remoteDir: ', remoteDir);
       // let remoteDir = `D:\\test2\\test3`
       try {
         // 检查远程目录是否存在

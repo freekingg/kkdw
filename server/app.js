@@ -6,6 +6,8 @@ const error = require('koa-json-error')
 const routing = require('./routes')
 const app = new Koa();
 
+let port = process.argv[2] ? process.argv[2] : 3005
+
 // 错误处理
 app.use(
   error({
@@ -27,4 +29,4 @@ app.use(cors());
 // 路由处理
 routing(app);
 
-app.listen(3005, () => console.log('\x1B[45m%s\x1B[49m', 'server is running at http://localhost:3005 node服务已启动'));
+app.listen(port, () => console.log(`server is running at http://localhost:${port} The node service is started`));
