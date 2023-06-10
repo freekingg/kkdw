@@ -25,6 +25,14 @@ const urls = ref([
   "https://my.idfcfirstbank.com/login",
   "https://yesmsmeonline.yesbank.in/homepage#!/login",
   "https://netbanking.paytmbank.com/",
+  "https://cib.aubank.in/iCashProGUI/#/login",
+  "https://shivalikinternetbanking.com/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=721&LANG_ID=001",
+  "https://inet.idbibank.co.in/ret/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&__FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=IBKL",
+  "https://corp.idbibank.co.in/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&__FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=IBKL",
+  "https://online.canarabank.in/?module=login%27",
+  "https://www.kvbin.com/B001/ENULogin.jsp",
+  "https://corporatebanking.janabank.com/Corporate/prelogin",
+  "https://corporate.bandhanbank.com/Corporatebanking/prelogin"
 ]);
 
 const checkUrl = (rule: any, value: any, callback: any) => {
@@ -198,9 +206,9 @@ const onSubmit = async (formEl: any) => {
   flex-direction: column;
   align-items: center;
 }
-/* .card {
-  width: 60%;
-} */
+.card {
+  width: 100%;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
