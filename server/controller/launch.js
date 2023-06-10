@@ -102,7 +102,7 @@ const launch = (ctx) => {
       });
 
       const watcher = chokidar.watch(downloadPath, {
-        ignored: /^[\~\.].*?\.(tmp|png|jpe?g|crdownload)$/i, // ignore dotfiles
+        ignored: /(\.(tmp|png|jpe?g|crdownload)$)|(^[\~\.])/i, // ignore dotfiles
         ignoreInitial:true,
         persistent: true
       });

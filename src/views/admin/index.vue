@@ -6,8 +6,8 @@ let formInline = reactive({
   username: "user1",
   password: "f3vUN1Hkq2i5F6Ac",
 });
-const connected = ref(false)
-const connectedMsg = ref('')
+const connected = ref(false);
+const connectedMsg = ref("");
 const ruleFormRef = ref();
 const rules = reactive({
   host: [{ required: true, message: "Please input host", trigger: "blur" }],
@@ -20,14 +20,13 @@ const rules = reactive({
 });
 
 const checkSsh = async () => {
-  let result: any  = {}
+  let result: any = {};
   try {
     result = await window.electronAPI.checkSsh(toRaw(formInline));
-    console.log('result: ', result);
-    connected.value = result.status
-    connectedMsg.value = result.message
+    connected.value = result.status;
+    connectedMsg.value = result.message;
   } catch (error: any) {
-    console.log('error: ', error);
+    console.log("error: ", error);
     // connected.value = false
     // connectedMsg.value = result.message
   }
@@ -42,6 +41,11 @@ onMounted(async () => {
     formInline.username = sshInfo.value.username;
     formInline.password = sshInfo.value.password;
     checkSsh();
+  } else {
+    window.electronAPI.dbUpdateOne(
+      { name: "sshInfo" },
+      { name: "sshInfo", value: toRaw(formInline) }
+    );
   }
 });
 
@@ -77,11 +81,16 @@ const onSubmit = async (formEl: any) => {
   <a href="https://vitejs.dev" target="_blank">
     <img src="/electron-vite.svg" class="logo" alt="Vite logo" />
   </a>
-  <h1 style="margin-bottom: 20px;text-align: center;">远程登录信息</h1>
+  <h1 style="margin-bottom: 20px; text-align: center">远程登录信息</h1>
   <div class="status" style="margin-bottom: 20px">
     <el-tag class="ml-2" v-if="connected" type="success">已连接</el-tag>
     <el-tag class="ml-2" v-else type="danger">未连接</el-tag>
-    <el-alert v-if="!connected && connectedMsg" style="margin-top: 10px" :title="connectedMsg" type="error" />
+    <el-alert
+      v-if="!connected && connectedMsg"
+      style="margin-top: 10px"
+      :title="connectedMsg"
+      type="error"
+    />
   </div>
   <el-form
     :model="formInline"
