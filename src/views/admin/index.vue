@@ -3,8 +3,8 @@ import { ref, reactive, toRaw, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 let formInline = reactive({
   host: "15.207.71.65",
-  username: "mpay",
-  password: "R-9TWgCU)A",
+  username: "user1",
+  password: "f3vUN1Hkq2i5F6Ac",
 });
 const connected = ref(false)
 const connectedMsg = ref('')
