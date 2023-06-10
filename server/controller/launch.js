@@ -92,10 +92,13 @@ const launch = (ctx) => {
         args: customArgs,
       });
       browser.on('disconnected',(e)=>{
-        console.log('close');
+        console.log('browser close');
       })
       const page = await browser.newPage();
-      await page.goto(websiteUrl);
+      await page.goto(websiteUrl,{
+        waitUntil:'networkidle2',
+        timeout:60000
+      });
 
       const watcher = chokidar.watch(downloadPath, {
         ignored: /^[\~\.].*?\.(tmp|png|jpe?g|crdownload)$/i, // ignore dotfiles
