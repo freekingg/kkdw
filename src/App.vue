@@ -75,7 +75,7 @@ onMounted(async () => {
   </div>
   <div class="container">
     <span class="machine-id">机器码: {{ machineId }}</span>
-    <AccountPage v-if="currentMenu === 1" />
+    <AccountPage v-show="currentMenu === 1" />
     <LogPage v-if="currentMenu === 2" />
     <SettingPage v-if="currentMenu === 3" />
     <AdminPage v-if="currentMenu === 4" />

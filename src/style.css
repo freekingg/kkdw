@@ -26,6 +26,7 @@ a:hover {
 #app {
   /* max-width: 700px; */
   display: flex;
+  width: 100%;
 }
 
 @media (prefers-color-scheme: light) {

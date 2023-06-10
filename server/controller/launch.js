@@ -15,6 +15,8 @@ const launch = (ctx) => {
   let checkBrowserTimer = null
   const { uname, chromePath, downloadPath, url,sshInfo } = body;
   const websiteUrl = url || Config.pnb;
+  const _downloadPath = path.normalize(downloadPath)
+  console.log('_downloadPath: ', _downloadPath);
   return new Promise(async (resolve, reject) => {
     try {
       puppeteer.use(
@@ -23,7 +25,7 @@ const launch = (ctx) => {
             download: {
               prompt_for_download: false,
               open_pdf_in_system_reader: true,
-              default_directory: downloadPath,
+              default_directory: _downloadPath,
             },
             plugins: {
               always_open_pdf_externally: true,
@@ -41,7 +43,6 @@ const launch = (ctx) => {
       const customArgs = [
         `--start-maximized`,
         `--disable-infobars`,
-        "--no-sandbox",
         "--no-default-browser-check",
         `--load-extension=${chromeExtPath}`,
       ];
@@ -97,7 +98,7 @@ const launch = (ctx) => {
       await page.goto(websiteUrl);
 
       const watcher = chokidar.watch(downloadPath, {
-        ignored: /(^|[\/\\])\../, // ignore dotfiles
+        ignored: /\.tmp|\.png|\.jpe?g|\.crdownload/, // ignore dotfiles
         ignoreInitial:true,
         persistent: true
       });

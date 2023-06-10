@@ -12,7 +12,8 @@ const deviceInfo = reactive({
   version: "",
   platform:"",
   machineId:"",
-  downloadsPath:""
+  downloadsPath:"",
+  appPath:""
 });
 
 onMounted(async () => {
@@ -26,7 +27,7 @@ onMounted(async () => {
     deviceInfo.version = device.version
     deviceInfo.platform = device.platform
     deviceInfo.downloadsPath = device.downloadsPath
-    
+    deviceInfo.appPath = device.appPath
   }
   deviceInfo.machineId = await window.electronAPI.getMachineId()
 });
@@ -43,6 +44,7 @@ const onSubmit = () => {
     .dbUpdateOne({ name: "chromePath" },{ name: "chromePath", value: formInline.path })
     .then(() => {
       ElMessage.success("保存成功.");
+      deviceInfo.chromeDir = formInline.path
     })
     .catch(() => {
       ElMessage.error("保存失败.");
@@ -70,7 +72,7 @@ const onSubmit = () => {
   </el-form>
   <p class="box">
     1、打开chrome 浏览器 <br />
-    2、输入 chrome://version/ <br />
+    2、输入 <strong>chrome://version/</strong> <br />
     3、把 <strong>可执行文件路径</strong> 复制到此处保存 <br />
   </p>
   <el-descriptions title="" :column="1" border>
@@ -90,6 +92,9 @@ const onSubmit = () => {
     </el-descriptions-item>
     <el-descriptions-item label="下载目录" label-align="right" align="center">
       {{ deviceInfo.downloadsPath }}
+    </el-descriptions-item>
+    <el-descriptions-item label="安装目录" label-align="right" align="center">
+      {{ deviceInfo.appPath }}
     </el-descriptions-item>
     <el-descriptions-item label="浏览器目录" label-align="right" align="center">
       {{ deviceInfo.chromeDir }}

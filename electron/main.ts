@@ -182,6 +182,7 @@ app.whenReady().then(() => {
       tempPath: app.getPath('temp'),
       downloadsPath: app.getPath('downloads'),
       desktopPath: app.getPath('desktop'),
+      appPath: app.getAppPath(),
       ip
     }
   });
