@@ -63,12 +63,12 @@ const launch = (ctx) => {
       // 远程目录
       let remoteDir = path.normalize(`D:\\download\\${uname}\\file\\`)
       console.log('remoteDir: ', remoteDir);
-      // let remoteDir = `D:\\test2\\test3`
       try {
         // 检查远程目录是否存在
         let remoteDirRes = await sftp.exists(remoteDir)
         if(!remoteDirRes){
           try {
+            await sftp.mkdir(path.normalize(`D:\\download\\${uname}`), true);
             await sftp.mkdir(remoteDir, true);
             DB.insert({name:'logInfo',value:{uname, message:`${remoteDir}不存在，在远程创建此目录`}});
           } catch (error) {
@@ -83,6 +83,7 @@ const launch = (ctx) => {
         return resolve({ code: -1, message: error.message });
       }
 
+      let disconnected = false
       const browser = await puppeteer.launch({
         headless: false,
         executablePath:
@@ -94,8 +95,12 @@ const launch = (ctx) => {
         ],
         args: customArgs,
       });
+      // 存储节点以便能重新连接到 Chromium  
+      const browserWSEndpoint = browser.wsEndpoint();  
+
       browser.on('disconnected',(e)=>{
         console.log('browser close');
+        disconnected = true
       })
       const page = await browser.newPage();
       await page.goto(websiteUrl,{
@@ -104,15 +109,15 @@ const launch = (ctx) => {
       });
 
       const watcher = chokidar.watch(downloadPath, {
-        ignored: /(\.(tmp|png|jpe?g|crdownload)$)|(^[\~\.])/i, // ignore dotfiles
+        ignored: /(\.(tmp|png|jpe?g|crdownload)$)|(^[\~\.\.com])/i, // ignore dotfiles
         ignoreInitial:true,
         persistent: true
       });
-     
+      DB.insert({name:'logInfo',value:{uname, message:`本地${downloadPath}文件与远程同步已开启`}});
       const handleSftp = (sftp1)=>{
         sftp1.on('close',()=>{
-          sftp1.end()
           console.log('sftp close');
+          // sftp1.end()
           sftpConnected = false
         })
       }
@@ -120,6 +125,8 @@ const launch = (ctx) => {
       
       watcher
         .on('add', p => {
+          const reg = /\.(txt|pdf|xlsx|xls)$/;
+          if(!reg.test(p)) return false
           let pathObj = path.parse(p)
           let localData = fs.createReadStream(p);
           let remoteData = remoteDir + pathObj.base
@@ -132,13 +139,16 @@ const launch = (ctx) => {
               DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} 上传失败, ${err.message}`}});
             });
           }else{
+            console.log('ssh 已断开连接，重连后上传');
+            sftp.end()
             SSH.connect(sshInfo).then((sftp2) => {
+              sftpConnected = true
               sftp = sftp2
               SSH.putFile(sftp,localData,remoteData).then((result) => {
-                console.log(`${pathObj.base} 上传成功`);
+                console.log(`${pathObj.base} ssh重连后上传成功`);
               }).catch(async (err) => {
-                console.log('err: ', err);
-                DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} 上传失败, ${err.message}`}});
+                console.log('ssh重连后上传失败  ', err);
+                DB.insert({name:'logInfo',value:{uname,message:`${pathObj.base} ssh重连后上传失败, ${err.message}`}});
               });
               handleSftp(sftp)
             }).catch((err) => {
@@ -148,9 +158,15 @@ const launch = (ctx) => {
         })
 
       // 检查浏览器是否关闭
-      checkBrowserTimer = setInterval(()=>{
-        browser.pages().then((result) => {
-          // console.log(`检查${uname}的任务浏览器是否关闭，${result.length}`);
+      checkBrowserTimer = setInterval(async ()=>{
+        let newBrowser = browser
+        if(disconnected){
+          console.log(`${uname}的任务浏览器已断开链接，重新连接`);
+          newBrowser = await puppeteer.connect({browserWSEndpoint});
+          disconnected = false
+        }
+        newBrowser.pages().then((result) => {
+          console.log(`检查${uname}的任务浏览器是否关闭，${result.length}`);
           if(!result.length){
             console.log('浏览器关闭了');
             DB.insert({name:'logInfo',value:{uname,message:`${uname} 的浏览器已关闭`}});

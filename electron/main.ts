@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs-extra";
 import { machineIdSync } from "node-machine-id";
 import { fork } from "child_process";
-// import { kill } from "cross-port-killer";
+import { kill } from "cross-port-killer";
 import getPort from "get-port";
 const DB = require("../db/index.js");
 import { updateHandle, checkForUpdates, downloadUpdate } from "./autoUpdater";
@@ -40,19 +40,22 @@ function createServerProcess() {
   });
 }
 
-// process.on("exit", function () {
-//   if (serverProcess) {
-//     try {
-//       console.log("kill serverProcess success ", );
-//       process.kill(serverProcess.pid);
-//     } catch (error) {
-//       console.log("kill error on process exit: ", error);
-//       kill(port).then((pids) => {
-//         console.log(pids);
-//       });
-//     }
-//   }
-// });
+process.on("exit", function () {
+  if (serverProcess) {
+    try {
+      console.log("kill serverProcess success on process exit", );
+      process.kill(serverProcess.pid);
+    } catch (error) {
+      console.log("kill error on process exit: ", error);
+    }
+    try {
+      kill(port)
+      console.log("kill port success on process exit ");
+    } catch (error) {
+      console.log("kill port error on process exit ", error);
+    }
+  }
+});
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -119,9 +122,16 @@ app.on("quit", () => {
   if (serverProcess) {
     try {
       process.kill(serverProcess.pid);
-      console.log("kill node process success: ", serverProcess.pid);
+      
+      console.log("kill node process success on quit ", serverProcess.pid);
     } catch (error) {
-      console.log("kill node process error: ", error);
+      console.log("kill node process error on quit ", error);
+    }
+    try {
+      kill(port)
+      console.log("kill port success: ");
+    } catch (error) {
+      console.log("kill port error: ", error);
     }
   }
 });

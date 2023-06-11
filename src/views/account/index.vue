@@ -22,7 +22,6 @@ const urls = ref([
   "https://indusnet.indusind.com/corp/BANKAWAY?Action.RetUser.Init.001=Y&AppSignonBankId=234&AppType=corporate&CorporateSignonLangId=001",
   "https://www.freecharge.in/",
   "https://inet.equitasbank.com/EquitasCorp/#",
-  "https://cibnext.icicibank.com/corp/AuthenticationController?FORMSGROUP_ID__=AuthenticationFG&__START_TRAN_FLAG__=Y&FG_BUTTONS__=LOAD&ACTION.LOAD=Y&AuthenticationFG.LOGIN_FLAG=1&BANK_ID=ICI&ITM=nli_corp_primer_login_btn_desk",
   "https://my.idfcfirstbank.com/login",
   "https://yesmsmeonline.yesbank.in/homepage#!/login",
   "https://netbanking.paytmbank.com/",

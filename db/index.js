@@ -41,7 +41,6 @@ const findOne = (query) => {
 };
 
 const insert = (data) => {
-  console.log('data: ', data);
   return new Promise((resolve, reject) => {
     DB.insert(data, (err, data) => {
       if (err) {
