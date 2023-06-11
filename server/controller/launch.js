@@ -84,7 +84,7 @@ const launch = (ctx) => {
       }
 
       let disconnected = false
-      const browser = await puppeteer.launch({
+      let browser = await puppeteer.launch({
         headless: false,
         executablePath:
           chromePath ||
@@ -162,12 +162,20 @@ const launch = (ctx) => {
       checkBrowserTimer = setInterval(async ()=>{
         let newBrowser = browser
         if(disconnected){
-          console.log(`${uname}的任务浏览器已断开链接，重新连接`);
-          newBrowser = await puppeteer.connect({browserWSEndpoint});
-          disconnected = false
+          try {
+            newBrowser = await puppeteer.connect({browserWSEndpoint});
+            disconnected = false
+            browser = newBrowser
+            DB.insert({name:'logInfo',value:{uname,message:`${uname}的任务浏览器已断开链接，重新连接成功`}});
+          } catch (error) {
+            DB.insert({name:'logInfo',value:{uname,message:`${uname}的任务浏览器已断开链接，重新连接失败`}});
+            clearInterval(checkBrowserTimer)
+            sftp.end()
+            watcher.close().then(() => console.log('watcher closed'));
+            browser.close()
+          }
         }
         newBrowser.pages().then((result) => {
-          console.log(`检查${uname}的任务浏览器是否关闭，${result.length}`);
           if(!result.length){
             console.log('浏览器关闭了');
             DB.insert({name:'logInfo',value:{uname,message:`${uname} 的浏览器已关闭`}});
