@@ -108,12 +108,12 @@ const launch = (ctx) => {
         timeout:60000
       });
 
-      const watcher = chokidar.watch(downloadPath, {
-        ignored: /(\.(tmp|png|jpe?g|crdownload)$)|(^[\~\.\.com])/i, // ignore dotfiles
+      const watcher = chokidar.watch(_downloadPath, {
+        ignored: /(\.(tmp|png|jpe?g|crdownload)$)|(^[\~\.])/i, // ignore dotfiles
         ignoreInitial:true,
         persistent: true
       });
-      DB.insert({name:'logInfo',value:{uname, message:`本地${downloadPath}文件与远程同步已开启`}});
+      DB.insert({name:'logInfo',value:{uname, message:`本地${_downloadPath}文件与远程同步已开启`}});
       const handleSftp = (sftp1)=>{
         sftp1.on('close',()=>{
           console.log('sftp close');
@@ -125,6 +125,7 @@ const launch = (ctx) => {
       
       watcher
         .on('add', p => {
+          console.log('p: ', p);
           const reg = /\.(txt|pdf|xlsx|xls)$/;
           if(!reg.test(p)) return false
           let pathObj = path.parse(p)
