@@ -98,10 +98,15 @@ const launch = (ctx) => {
       // 存储节点以便能重新连接到 Chromium  
       const browserWSEndpoint = browser.wsEndpoint();  
 
-      browser.on('disconnected',(e)=>{
-        console.log('browser close');
-        disconnected = true
-      })
+      // 监听浏览器关闭
+      const onBrowserClose = (browser)=>{
+        browser.on('disconnected',(e)=>{
+          console.log('browser close');
+          disconnected = true
+        })
+      }
+      onBrowserClose(browser)
+      
       const page = await browser.newPage();
       await page.goto(websiteUrl,{
         waitUntil:'networkidle2',
@@ -159,14 +164,14 @@ const launch = (ctx) => {
         })
 
       // 检查浏览器是否关闭
+      let newBrowser = browser
       checkBrowserTimer = setInterval(async ()=>{
-        let newBrowser = browser
         if(disconnected){
           try {
             newBrowser = await puppeteer.connect({browserWSEndpoint});
             disconnected = false
-            browser = newBrowser
             DB.insert({name:'logInfo',value:{uname,message:`${uname}的任务浏览器已断开链接，重新连接成功`}});
+            onBrowserClose(newBrowser)
           } catch (error) {
             DB.insert({name:'logInfo',value:{uname,message:`${uname}的任务浏览器已断开链接，重新连接失败`}});
             clearInterval(checkBrowserTimer)
@@ -176,6 +181,7 @@ const launch = (ctx) => {
           }
         }
         newBrowser.pages().then((result) => {
+          // console.log('检查浏览器是否关闭',result.length);
           if(!result.length){
             console.log('浏览器关闭了');
             DB.insert({name:'logInfo',value:{uname,message:`${uname} 的浏览器已关闭`}});
