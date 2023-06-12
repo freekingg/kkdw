@@ -1,7 +1,7 @@
 {
   "name": "kkdw",
   "private": true,
-  "version": "1.2.2",
+  "version": "1.2.3",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build && electron-builder",

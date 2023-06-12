@@ -98,6 +98,8 @@ const launch = (ctx) => {
       // 存储节点以便能重新连接到 Chromium  
       const browserWSEndpoint = browser.wsEndpoint();  
 
+     
+
       // 监听浏览器关闭
       const onBrowserClose = (browser)=>{
         browser.on('disconnected',(e)=>{
@@ -112,6 +114,17 @@ const launch = (ctx) => {
         waitUntil:'networkidle2',
         timeout:60000
       });
+
+      // // 设置下载路径
+      // const client = await page.target().createCDPSession()
+      // await client.send('Page.setDownloadBehavior', {
+      //   behavior: 'allow',
+      //   downloadPath: _downloadPath,
+      // })
+      // await client.send('Browser.setDownloadBehavior', {
+      //   behavior: 'allowAndName',
+      //   downloadPath: _downloadPath,
+      // })
 
       const watcher = chokidar.watch(_downloadPath, {
         ignored: /(\.(tmp|png|jpe?g|crdownload)$)|(^[\~\.])/i, // ignore dotfiles
@@ -131,7 +144,7 @@ const launch = (ctx) => {
       watcher
         .on('add', p => {
           console.log('p: ', p);
-          const reg = /\.(txt|pdf|xlsx|xls)$/;
+          const reg = /\.(txt|pdf|xlsx|xls|csv|TXT|PDF|XLSX|XLS|CSV)$/;
           if(!reg.test(p)) return false
           let pathObj = path.parse(p)
           let localData = fs.createReadStream(p);

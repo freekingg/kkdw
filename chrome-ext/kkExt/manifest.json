@@ -18,14 +18,14 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content-script-loader.chunk-2e935b18.fd42df95.js"
+        "assets/content-script-loader.chunk-1459b2d0.67549799.js"
       ],
       "matches": [
         "*://*/*"
       ],
       "run_at": "document_end",
       "css": [
-        "assets/index.ts.cf4d4775.css"
+        "assets/index.ts.c058e5e3.css"
       ]
     }
   ],
@@ -47,7 +47,7 @@
       "resources": [
         "assets/chunk-ff341a87.js",
         "assets/chunk-da78f260.js",
-        "assets/chunk-2e935b18.js"
+        "assets/chunk-1459b2d0.js"
       ],
       "use_dynamic_url": true
     }

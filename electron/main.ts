@@ -110,7 +110,6 @@ function createWindow() {
     });
   }
 }
-
 app.on("second-instance", () => {
   if (win) {
     if (win.isMinimized()) win.restore();
