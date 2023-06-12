@@ -12,6 +12,14 @@ const getLogs = async()=>{
   }
 }
 
+
+const removeLogs = async()=>{
+  await window.electronAPI.dbRemove({
+    name: "logInfo",
+  });
+  getLogs()
+}
+
 onMounted(async ()=>{
   getLogs()
 })
@@ -43,7 +51,7 @@ onMounted(async ()=>{
      
     </el-table>
   </div>
-  
+  <el-button type="info" style="margin-top: 20px" @click="removeLogs">清除缓存</el-button>
 </template>
 
 <style scoped>

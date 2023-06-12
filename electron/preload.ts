@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   dbFindOne: (query:any) => ipcRenderer.invoke('db:findOne',query),
   dbFindAll: (query:any) => ipcRenderer.invoke('db:findAll',query),
   dbInsert: (data:any) => ipcRenderer.invoke('db:insert',data),
+  dbRemove: (data:any) => ipcRenderer.invoke('db:remove',data),
   dbUpdateOne: (query:any,data:any) => ipcRenderer.invoke('db:updateOne',query,data),
   checkForUpdates: () => ipcRenderer.invoke('checkForUpdates'),
   downloadUpdate: () => ipcRenderer.invoke('downloadUpdate'),

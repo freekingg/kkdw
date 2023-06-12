@@ -27,6 +27,7 @@ export interface IElectronAPI {
   dbFindOne: (query:any) => Promise<string>;
   dbFindAll: (query:any) => Promise<string>;
   dbInsert: (data:any) => Promise<string>;
+  dbRemove: (query:any) => Promise<string>;
   dbUpdateOne: (query:any, data:any) => Promise<string>;
   checkDir: (data:string) => Promise<string>;
   checkSsh: (data:any) => Promise<string>;

@@ -40,6 +40,18 @@ const findOne = (query) => {
   });
 };
 
+const remove = (query) => {
+  return new Promise((resolve, reject) => {
+    DB.remove(query, { multi: true }, (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(data);
+    });
+  });
+};
+
 const insert = (data) => {
   return new Promise((resolve, reject) => {
     DB.insert(data, (err, data) => {
@@ -64,6 +76,7 @@ module.exports = {
   findAll,
   findOne,
   insert,
+  remove,
   updateOne,
 };
 // export default {

@@ -209,6 +209,11 @@ app.whenReady().then(() => {
     return result;
   });
 
+  ipcMain.handle("db:remove", async (_event, query) => {
+    let result = await DB.remove(query);
+    return result;
+  });
+
   ipcMain.handle("db:insert", async (_event, data) => {
     let result = false;
     try {
